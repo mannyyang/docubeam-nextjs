@@ -1,6 +1,9 @@
 import { Metadata } from "next";
 import { Hero } from "@/components/landing/hero";
-import { Features } from "@/components/landing/features";
+import { ProblemSection } from "@/components/landing/problem-section";
+import { ValuePropositionSection } from "@/components/landing/value-proposition-section";
+import { HowItWorksSection } from "@/components/landing/how-it-works-section";
+import { CtaSection } from "@/components/landing/cta-section";
 import { FAQ } from "@/components/landing/faq";
 import { SITE_NAME, SITE_DESCRIPTION } from "@/constants";
 
@@ -13,7 +16,10 @@ export default function Home() {
   return (
     <main>
       <Hero />
-      <Features />
+      <ProblemSection />
+      <ValuePropositionSection />
+      <HowItWorksSection />
+      <CtaSection />
       <FAQ />
     </main>
   );

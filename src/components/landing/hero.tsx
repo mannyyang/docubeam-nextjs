@@ -1,69 +1,93 @@
+"use client";
+
 import { Button } from "@/components/ui/button";
-import { GITHUB_REPO_URL } from "@/constants";
-import Link from "next/link";
-import ShinyButton from "@/components/ui/shiny-button";
-import { getTotalUsers } from "@/utils/stats";
-import { Suspense } from "react";
-import { Skeleton } from "@/components/ui/skeleton";
+import { Input } from "@/components/ui/input";
+import { ArrowRight, MessageSquare, Loader2 } from "lucide-react";
+import { useState } from "react";
 
 export function Hero() {
+  const [email, setEmail] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email) return;
+    
+    setIsSubmitting(true);
+    
+    try {
+      // TODO: Implement waitlist API call
+      console.log('Joining waitlist with email:', email);
+      
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      alert(`${email} has been added to our waitlist. We'll notify you when we launch!`);
+      setEmail("");
+    } catch (error) {
+      console.error('Waitlist submission error:', error);
+      alert('Failed to join waitlist. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
-    <div className="relative isolate pt-14 dark:bg-gray-900">
-      <div className="pt-20 pb-24 sm:pt-20 sm:pb-32 lg:pb-40">
-        <div className="mx-auto max-w-7xl px-6 lg:px-8">
-          <div className="mx-auto max-w-2xl text-center">
-            <div className="mb-10 flex justify-center gap-4 flex-wrap">
-              <ShinyButton className="rounded-full bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 ring-1 ring-inset ring-indigo-500/20">
-                100% Free & Open Source
-              </ShinyButton>
-              <Suspense fallback={<TotalUsersButtonSkeleton />}>
-                <TotalUsersButton />
-              </Suspense>
-            </div>
-            <h1 className="text-4xl font-bold tracking-tight sm:text-6xl bg-gradient-to-r from-indigo-500 to-purple-500 bg-clip-text text-transparent">
-              Production-Ready SaaS Template
-            </h1>
-            <p className="mt-6 text-lg leading-8 text-muted-foreground">
-              A modern, open-source template for building SaaS applications with Next.js 15,
-              Cloudflare Workers, and everything you need to launch quickly.
-            </p>
-            <div className="mt-10 flex items-center justify-center gap-x-4 md:gap-x-6">
-              <a href={GITHUB_REPO_URL} target="_blank">
-                <Button size="lg" className="rounded-full">
-                  View on GitHub
-                </Button>
-              </a>
-              <Link href="/sign-in">
-                <Button variant="outline" size="lg" className="rounded-full">
-                  Try Demo
-                </Button>
-              </Link>
-            </div>
-          </div>
+    <section id="hero" className="relative w-full min-h-screen flex items-center justify-center text-center bg-black">
+      <div className="mx-auto max-w-[80rem] px-6 md:px-8 py-20 relative z-10 flex flex-col items-center justify-center text-center">
+        {/* Small badge/pill */}
+        <div className="backdrop-filter-[12px] inline-flex h-7 items-center justify-between rounded-full border border-white/5 bg-white/10 px-3 text-xs text-white dark:text-white transition-all ease-in hover:cursor-pointer hover:bg-white/20 group gap-1">
+          <p className="mx-auto max-w-md text-white/80 dark:text-white/80 inline-flex items-center justify-center">
+            <MessageSquare className="h-4 w-4 mr-2 text-green-500" />
+            <span>Introducing PDF Comment Extraction</span>
+            <ArrowRight className="ml-1 size-3 transition-transform duration-300 ease-in-out group-hover:translate-x-0.5" />
+          </p>
         </div>
+
+        {/* Main heading */}
+        <h1 className="py-6 text-5xl font-medium leading-none tracking-tighter text-white text-balance sm:text-6xl md:text-7xl lg:text-8xl leading-[1.3]">
+          <span className="text-white">Stop Chasing Comments,</span>
+          <br className="hidden md:block" />
+          <span className="bg-gradient-to-r from-[#FF0080] via-[#7928CA] to-[#0070F3] bg-clip-text text-transparent leading-[1.2]">
+            Get Actionable Insights
+          </span>
+        </h1>
+
+        {/* Subheading */}
+        <p className="mb-8 text-lg tracking-tight text-gray-400 md:text-xl text-balance">
+          Prioritize key discussions and centrally organize all data
+        </p>
+
+        {/* CTA with email input */}
+        <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row items-center justify-center gap-3">
+          <div className="relative w-full max-w-xs">
+            <Input
+              type="email"
+              placeholder="Enter your email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="h-10 bg-white/10 border-white/20 text-white placeholder:text-white/50 focus-visible:ring-primary"
+            />
+          </div>
+          <Button
+            type="submit"
+            disabled={isSubmitting}
+            className="gap-1 group"
+          >
+            {isSubmitting ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                <span>Submitting...</span>
+              </>
+            ) : (
+              <>
+                <span>Join Waiting List</span>
+                <ArrowRight className="ml-1 size-4 transition-transform duration-300 ease-in-out group-hover:translate-x-1" />
+              </>
+            )}
+          </Button>
+        </form>
       </div>
-    </div>
-  );
-}
-
-// This component will be wrapped in Suspense
-async function TotalUsersButton() {
-  const totalUsers = await getTotalUsers();
-
-  if (!totalUsers) return null;
-
-  return (
-    <ShinyButton className="rounded-full bg-purple-500/10 text-purple-600 dark:text-purple-400 ring-1 ring-inset ring-purple-500/20">
-      {totalUsers} Users & Growing
-    </ShinyButton>
-  );
-}
-
-// Skeleton fallback for the TotalUsersButton
-function TotalUsersButtonSkeleton() {
-  return (
-    <div className="rounded-full bg-purple-500/10 ring-1 ring-inset ring-purple-500/20 px-4 py-1.5 text-sm font-medium">
-      <Skeleton className="w-32 h-5" />
-    </div>
+    </section>
   );
 }

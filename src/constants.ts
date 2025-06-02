@@ -1,6 +1,6 @@
 import type { Route } from "next"
 
-export const SITE_NAME = "Docubeam - Extract PDF Comments & Get Actionable Insights"
+export const SITE_NAME = "Docubeam"
 export const SITE_DESCRIPTION = "Docubeam extracts and organizes comments from PDF documents, providing actionable insights and centralized data organization."
 export const SITE_URL = process.env.NODE_ENV === "development" ? "http://localhost:3000" : "https://docubeam.websyte.ai/"
 export const GITHUB_REPO_URL = "https://github.com/LubomirGeorgiev/cloudflare-workers-nextjs-saas-template"

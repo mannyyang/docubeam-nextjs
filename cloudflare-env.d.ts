@@ -10,7 +10,7 @@ declare namespace Cloudflare {
 		NEXTJS_ENV: string;
 		NEXT_CACHE_DO_QUEUE: DurableObjectNamespace /* DOQueueHandler */;
 		NEXT_TAG_CACHE_D1: D1Database;
-		WORKER_SELF_REFERENCE: Fetcher /* cloudflare-workers-nextjs-saas-template */;
+		WORKER_SELF_REFERENCE: Fetcher /* docubeam-nextjs */;
 		ASSETS: Fetcher;
 	}
 }
