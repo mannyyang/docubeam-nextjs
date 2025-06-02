@@ -8,7 +8,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import NextTopLoader from 'nextjs-toploader'
 import { SITE_NAME, SITE_DESCRIPTION, SITE_URL } from "@/constants";
-import { AgenticDevStudioStickyBanner } from "@/components/startup-studio-sticky-banner";
+// import { AgenticDevStudioStickyBanner } from "@/components/startup-studio-sticky-banner";
 
 export const dynamic = "force-dynamic";
 
@@ -21,22 +21,24 @@ export const metadata: Metadata = {
   },
   description: SITE_DESCRIPTION,
   metadataBase: new URL(SITE_URL),
-  keywords: ["SaaS", "Next.js", "React", "TypeScript", "Cloudflare Workers", "Edge Computing"],
-  authors: [{ name: "Lubomir Georgiev" }],
-  creator: "Lubomir Georgiev",
+  keywords: ["AI PDF", "PDF Summary", "PDF extraction", "comment organization", "document insights", "PDF annotations"],
+  authors: [{ name: "Docubeam" }],
+  creator: "Docubeam",
   openGraph: {
     type: "website",
     locale: "en_US",
     url: SITE_URL,
     title: SITE_NAME,
     description: SITE_DESCRIPTION,
-    siteName: SITE_NAME,
+    siteName: "Docubeam",
+    images: ["/docubeam-og.png"],
   },
   twitter: {
     card: "summary_large_image",
     title: SITE_NAME,
     description: SITE_DESCRIPTION,
-    creator: "@LubomirGeorg",
+    creator: "@docubeam",
+    images: ["/docubeam-og.png"],
   },
   robots: {
     index: true,
@@ -48,6 +50,9 @@ export const metadata: Metadata = {
       "max-image-preview": "large",
       "max-snippet": -1,
     },
+  },
+  icons: {
+    icon: "/docubeam-logo-sm.png",
   },
 };
 
@@ -77,7 +82,7 @@ export default function BaseLayout({
           </TooltipProvider>
         </ThemeProvider>
         <Toaster richColors closeButton position="top-right" expand duration={7000} />
-        <AgenticDevStudioStickyBanner />
+        {/* <AgenticDevStudioStickyBanner /> */}
       </body>
     </html>
   );

@@ -1,8 +1,8 @@
 import type { Route } from "next"
 
-export const SITE_NAME = "SaaS Template"
-export const SITE_DESCRIPTION = "A modern SaaS template built with Next.js 15 and Cloudflare Workers, designed for scalability and performance."
-export const SITE_URL = process.env.NODE_ENV === "development" ? "http://localhost:3000" : "https://nextjs-saas-template.agenticdev.agency"
+export const SITE_NAME = "Docubeam - Extract PDF Comments & Get Actionable Insights"
+export const SITE_DESCRIPTION = "Docubeam extracts and organizes comments from PDF documents, providing actionable insights and centralized data organization."
+export const SITE_URL = process.env.NODE_ENV === "development" ? "http://localhost:3000" : "https://docubeam.websyte.ai/"
 export const GITHUB_REPO_URL = "https://github.com/LubomirGeorgiev/cloudflare-workers-nextjs-saas-template"
 
 export const SITE_DOMAIN = new URL(SITE_URL).hostname
