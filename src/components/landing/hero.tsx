@@ -4,10 +4,17 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ArrowRight, MessageSquare, Loader2 } from "lucide-react";
 import { useState } from "react";
+import { PdfUpload } from "@/components/pdf-upload";
+import { UploadedDocument } from "@/types/document";
 
 export function Hero() {
   const [email, setEmail] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  
+  const handleUploadSuccess = (document: UploadedDocument) => {
+    console.log('Document uploaded successfully:', document);
+    // You can add additional logic here, like redirecting to a chat page
+  };
   
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -87,6 +94,15 @@ export function Hero() {
             )}
           </Button>
         </form>
+
+        {/* PDF Upload Section */}
+        <div className="w-full relative mt-[8rem]">
+          <div className="rounded-xl border border-white/10 bg-transparent">
+            <div className="relative z-10 bg-transparent p-8">
+              <PdfUpload onUploadSuccess={handleUploadSuccess} />
+            </div>
+          </div>
+        </div>
       </div>
     </section>
   );

@@ -6,4 +6,10 @@ interface CloudflareEnv {
   BREVO_API_KEY?: string;
   GOOGLE_CLIENT_ID?: string;
   GOOGLE_CLIENT_SECRET?: string;
+  
+  // R2 Storage bindings
+  PDF_BUCKET?: R2Bucket;
+  
+  // API Keys
+  MISTRAL_AI_API_KEY?: string;
 }

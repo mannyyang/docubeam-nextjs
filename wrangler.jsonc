@@ -88,5 +88,12 @@
             "binding": "NEXT_INC_CACHE_KV",
             "id": "c6f2b077e0a34a84b3598558eb833055"
         }
+    ],
+    "r2_buckets": [
+        {
+            "binding": "PDF_BUCKET",
+            "bucket_name": "docubeam",
+            "preview_bucket_name": "docubeam-dev"
+        }
     ]
   }
