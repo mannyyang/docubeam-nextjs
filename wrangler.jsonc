@@ -75,14 +75,6 @@
       },
     ],
 
-    "d1_databases": [
-        {
-            "binding": "NEXT_TAG_CACHE_D1",
-            "database_name": "cloudflare-workers-nextjs-saas",
-            "database_id": "94dd1269-a29c-4621-adff-1762d1af6926",
-            "migrations_dir": "src/db/migrations"
-        }
-    ],
     "kv_namespaces": [
         {
             "binding": "NEXT_INC_CACHE_KV",

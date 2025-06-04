@@ -1,5 +1,5 @@
-import { sqliteTable, integer, text, index } from "drizzle-orm/sqlite-core";
-import { relations, sql } from "drizzle-orm";
+import { pgTable, integer, text, index, timestamp, varchar, json, boolean } from "drizzle-orm/pg-core";
+import { relations } from "drizzle-orm";
 import { type InferSelectModel } from "drizzle-orm";
 
 import { createId } from '@paralleldrive/cuid2'
@@ -12,88 +12,54 @@ export const ROLES_ENUM = {
 const roleTuple = Object.values(ROLES_ENUM) as [string, ...string[]];
 
 const commonColumns = {
-  createdAt: integer({
-    mode: "timestamp",
-  }).$defaultFn(() => new Date()).notNull(),
-  updatedAt: integer({
-    mode: "timestamp",
-  }).$onUpdateFn(() => new Date()).notNull(),
-  updateCounter: integer().default(0).$onUpdate(() => sql`updateCounter + 1`),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  updateCounter: integer("update_counter").default(0),
 }
 
-export const userTable = sqliteTable("user", {
+export const userTable = pgTable("user", {
   ...commonColumns,
-  id: text().primaryKey().$defaultFn(() => `usr_${createId()}`).notNull(),
-  firstName: text({
-    length: 255,
-  }),
-  lastName: text({
-    length: 255,
-  }),
-  email: text({
-    length: 255,
-  }).unique(),
-  passwordHash: text(),
-  role: text({
-    enum: roleTuple,
-  }).default(ROLES_ENUM.USER).notNull(),
-  emailVerified: integer({
-    mode: "timestamp",
-  }),
-  signUpIpAddress: text({
-    length: 100,
-  }),
-  googleAccountId: text({
-    length: 255,
-  }),
+  id: varchar("id", { length: 255 }).primaryKey().$defaultFn(() => `usr_${createId()}`).notNull(),
+  firstName: varchar("first_name", { length: 255 }),
+  lastName: varchar("last_name", { length: 255 }),
+  email: varchar("email", { length: 255 }).unique(),
+  passwordHash: text("password_hash"),
+  role: varchar("role", { length: 50, enum: roleTuple }).default(ROLES_ENUM.USER).notNull(),
+  emailVerified: timestamp("email_verified"),
+  signUpIpAddress: varchar("sign_up_ip_address", { length: 100 }),
+  googleAccountId: varchar("google_account_id", { length: 255 }),
   /**
    * This can either be an absolute or relative path to an image
    */
-  avatar: text({
-    length: 600,
-  }),
+  avatar: varchar("avatar", { length: 600 }),
   // Credit system fields
-  currentCredits: integer().default(0).notNull(),
-  lastCreditRefreshAt: integer({
-    mode: "timestamp",
-  }),
-}, (table) => ([
+  currentCredits: integer("current_credits").default(0).notNull(),
+  lastCreditRefreshAt: timestamp("last_credit_refresh_at"),
+}, (table) => [
   index('email_idx').on(table.email),
   index('google_account_id_idx').on(table.googleAccountId),
   index('role_idx').on(table.role),
-]));
+]);
 
-export const passKeyCredentialTable = sqliteTable("passkey_credential", {
+export const passKeyCredentialTable = pgTable("passkey_credential", {
   ...commonColumns,
-  id: text().primaryKey().$defaultFn(() => `pkey_${createId()}`).notNull(),
-  userId: text().notNull().references(() => userTable.id),
-  credentialId: text({
-    length: 255,
-  }).notNull().unique(),
-  credentialPublicKey: text({
-    length: 255,
-  }).notNull(),
-  counter: integer().notNull(),
+  id: varchar("id", { length: 255 }).primaryKey().$defaultFn(() => `pkey_${createId()}`).notNull(),
+  userId: varchar("user_id", { length: 255 }).notNull().references(() => userTable.id),
+  credentialId: varchar("credential_id", { length: 255 }).notNull().unique(),
+  credentialPublicKey: text("credential_public_key").notNull(),
+  counter: integer("counter").notNull(),
   // Optional array of AuthenticatorTransport as JSON string
-  transports: text({
-    length: 255,
-  }),
+  transports: varchar("transports", { length: 255 }),
   // Authenticator Attestation GUID. We use this to identify the device/authenticator app that created the passkey
-  aaguid: text({
-    length: 255,
-  }),
+  aaguid: varchar("aaguid", { length: 255 }),
   // The user agent of the device that created the passkey
-  userAgent: text({
-    length: 255,
-  }),
+  userAgent: varchar("user_agent", { length: 255 }),
   // The IP address that created the passkey
-  ipAddress: text({
-    length: 100,
-  }),
-}, (table) => ([
+  ipAddress: varchar("ip_address", { length: 100 }),
+}, (table) => [
   index('user_id_idx').on(table.userId),
   index('credential_id_idx').on(table.credentialId),
-]));
+]);
 
 // Credit transaction types
 export const CREDIT_TRANSACTION_TYPE = {
@@ -104,35 +70,25 @@ export const CREDIT_TRANSACTION_TYPE = {
 
 export const creditTransactionTypeTuple = Object.values(CREDIT_TRANSACTION_TYPE) as [string, ...string[]];
 
-export const creditTransactionTable = sqliteTable("credit_transaction", {
+export const creditTransactionTable = pgTable("credit_transaction", {
   ...commonColumns,
-  id: text().primaryKey().$defaultFn(() => `ctxn_${createId()}`).notNull(),
-  userId: text().notNull().references(() => userTable.id),
-  amount: integer().notNull(),
+  id: varchar("id", { length: 255 }).primaryKey().$defaultFn(() => `ctxn_${createId()}`).notNull(),
+  userId: varchar("user_id", { length: 255 }).notNull().references(() => userTable.id),
+  amount: integer("amount").notNull(),
   // Track how many credits are still available from this transaction
-  remainingAmount: integer().default(0).notNull(),
-  type: text({
-    enum: creditTransactionTypeTuple,
-  }).notNull(),
-  description: text({
-    length: 255,
-  }).notNull(),
-  expirationDate: integer({
-    mode: "timestamp",
-  }),
-  expirationDateProcessedAt: integer({
-    mode: "timestamp",
-  }),
-  paymentIntentId: text({
-    length: 255,
-  }),
-}, (table) => ([
+  remainingAmount: integer("remaining_amount").default(0).notNull(),
+  type: varchar("type", { length: 50, enum: creditTransactionTypeTuple }).notNull(),
+  description: varchar("description", { length: 255 }).notNull(),
+  expirationDate: timestamp("expiration_date"),
+  expirationDateProcessedAt: timestamp("expiration_date_processed_at"),
+  paymentIntentId: varchar("payment_intent_id", { length: 255 }),
+}, (table) => [
   index('credit_transaction_user_id_idx').on(table.userId),
   index('credit_transaction_type_idx').on(table.type),
   index('credit_transaction_created_at_idx').on(table.createdAt),
   index('credit_transaction_expiration_date_idx').on(table.expirationDate),
   index('credit_transaction_payment_intent_id_idx').on(table.paymentIntentId),
-]));
+]);
 
 // Define item types that can be purchased
 export const PURCHASABLE_ITEM_TYPE = {
@@ -142,25 +98,21 @@ export const PURCHASABLE_ITEM_TYPE = {
 
 export const purchasableItemTypeTuple = Object.values(PURCHASABLE_ITEM_TYPE) as [string, ...string[]];
 
-export const purchasedItemsTable = sqliteTable("purchased_item", {
+export const purchasedItemsTable = pgTable("purchased_item", {
   ...commonColumns,
-  id: text().primaryKey().$defaultFn(() => `pitem_${createId()}`).notNull(),
-  userId: text().notNull().references(() => userTable.id),
+  id: varchar("id", { length: 255 }).primaryKey().$defaultFn(() => `pitem_${createId()}`).notNull(),
+  userId: varchar("user_id", { length: 255 }).notNull().references(() => userTable.id),
   // The type of item (e.g., COMPONENT, TEMPLATE, etc.)
-  itemType: text({
-    enum: purchasableItemTypeTuple,
-  }).notNull(),
+  itemType: varchar("item_type", { length: 50, enum: purchasableItemTypeTuple }).notNull(),
   // The ID of the item within its type (e.g., componentId)
-  itemId: text().notNull(),
-  purchasedAt: integer({
-    mode: "timestamp",
-  }).$defaultFn(() => new Date()).notNull(),
-}, (table) => ([
+  itemId: varchar("item_id", { length: 255 }).notNull(),
+  purchasedAt: timestamp("purchased_at").defaultNow().notNull(),
+}, (table) => [
   index('purchased_item_user_id_idx').on(table.userId),
   index('purchased_item_type_idx').on(table.itemType),
   // Composite index for checking if a user owns a specific item of a specific type
   index('purchased_item_user_item_idx').on(table.userId, table.itemType, table.itemId),
-]));
+]);
 
 // System-defined roles - these are always available
 export const SYSTEM_ROLES_ENUM = {
@@ -202,85 +154,85 @@ export const TEAM_PERMISSIONS = {
 } as const;
 
 // Team table
-export const teamTable = sqliteTable("team", {
+export const teamTable = pgTable("team", {
   ...commonColumns,
-  id: text().primaryKey().$defaultFn(() => `team_${createId()}`).notNull(),
-  name: text({ length: 255 }).notNull(),
-  slug: text({ length: 255 }).notNull().unique(),
-  description: text({ length: 1000 }),
-  avatarUrl: text({ length: 600 }),
+  id: varchar("id", { length: 255 }).primaryKey().$defaultFn(() => `team_${createId()}`).notNull(),
+  name: varchar("name", { length: 255 }).notNull(),
+  slug: varchar("slug", { length: 255 }).notNull().unique(),
+  description: text("description"),
+  avatarUrl: varchar("avatar_url", { length: 600 }),
   // Settings could be stored as JSON
-  settings: text({ length: 10000 }),
+  settings: json("settings"),
   // Optional billing-related fields
-  billingEmail: text({ length: 255 }),
-  planId: text({ length: 100 }),
-  planExpiresAt: integer({ mode: "timestamp" }),
-  creditBalance: integer().default(0).notNull(),
-}, (table) => ([
+  billingEmail: varchar("billing_email", { length: 255 }),
+  planId: varchar("plan_id", { length: 100 }),
+  planExpiresAt: timestamp("plan_expires_at"),
+  creditBalance: integer("credit_balance").default(0).notNull(),
+}, (table) => [
   index('team_slug_idx').on(table.slug),
-]));
+]);
 
 // Team membership table
-export const teamMembershipTable = sqliteTable("team_membership", {
+export const teamMembershipTable = pgTable("team_membership", {
   ...commonColumns,
-  id: text().primaryKey().$defaultFn(() => `tmem_${createId()}`).notNull(),
-  teamId: text().notNull().references(() => teamTable.id),
-  userId: text().notNull().references(() => userTable.id),
+  id: varchar("id", { length: 255 }).primaryKey().$defaultFn(() => `tmem_${createId()}`).notNull(),
+  teamId: varchar("team_id", { length: 255 }).notNull().references(() => teamTable.id),
+  userId: varchar("user_id", { length: 255 }).notNull().references(() => userTable.id),
   // This can be either a system role or a custom role ID
-  roleId: text().notNull(),
+  roleId: varchar("role_id", { length: 255 }).notNull(),
   // Flag to indicate if this is a system role
-  isSystemRole: integer().default(1).notNull(),
-  invitedBy: text().references(() => userTable.id),
-  invitedAt: integer({ mode: "timestamp" }),
-  joinedAt: integer({ mode: "timestamp" }),
-  expiresAt: integer({ mode: "timestamp" }),
-  isActive: integer().default(1).notNull(),
-}, (table) => ([
+  isSystemRole: boolean("is_system_role").default(true).notNull(),
+  invitedBy: varchar("invited_by", { length: 255 }).references(() => userTable.id),
+  invitedAt: timestamp("invited_at"),
+  joinedAt: timestamp("joined_at"),
+  expiresAt: timestamp("expires_at"),
+  isActive: boolean("is_active").default(true).notNull(),
+}, (table) => [
   index('team_membership_team_id_idx').on(table.teamId),
   index('team_membership_user_id_idx').on(table.userId),
   // Instead of unique() which causes linter errors, we'll create a unique constraint on columns
   index('team_membership_unique_idx').on(table.teamId, table.userId),
-]));
+]);
 
 // Team role table
-export const teamRoleTable = sqliteTable("team_role", {
+export const teamRoleTable = pgTable("team_role", {
   ...commonColumns,
-  id: text().primaryKey().$defaultFn(() => `trole_${createId()}`).notNull(),
-  teamId: text().notNull().references(() => teamTable.id),
-  name: text({ length: 255 }).notNull(),
-  description: text({ length: 1000 }),
+  id: varchar("id", { length: 255 }).primaryKey().$defaultFn(() => `trole_${createId()}`).notNull(),
+  teamId: varchar("team_id", { length: 255 }).notNull().references(() => teamTable.id),
+  name: varchar("name", { length: 255 }).notNull(),
+  description: text("description"),
   // Store permissions as a JSON array of permission keys
-  permissions: text({ mode: 'json' }).notNull().$type<string[]>(),
+  permissions: json("permissions").notNull().$type<string[]>(),
   // A JSON field for storing UI-specific settings like color, icon, etc.
-  metadata: text({ length: 5000 }),
+  metadata: json("metadata"),
   // Optional flag to mark some roles as non-editable
-  isEditable: integer().default(1).notNull(),
-}, (table) => ([
+  isEditable: boolean("is_editable").default(true).notNull(),
+}, (table) => [
   index('team_role_team_id_idx').on(table.teamId),
   // Instead of unique() which causes linter errors, we'll create a unique constraint on columns
   index('team_role_name_unique_idx').on(table.teamId, table.name),
-]));
+]);
 
 // Team invitation table
-export const teamInvitationTable = sqliteTable("team_invitation", {
+export const teamInvitationTable = pgTable("team_invitation", {
   ...commonColumns,
-  id: text().primaryKey().$defaultFn(() => `tinv_${createId()}`).notNull(),
-  teamId: text().notNull().references(() => teamTable.id),
-  email: text({ length: 255 }).notNull(),
+  id: varchar("id", { length: 255 }).primaryKey().$defaultFn(() => `tinv_${createId()}`).notNull(),
+  teamId: varchar("team_id", { length: 255 }).notNull().references(() => teamTable.id),
+  email: varchar("email", { length: 255 }).notNull(),
   // This can be either a system role or a custom role ID
-  roleId: text().notNull(),
+  roleId: varchar("role_id", { length: 255 }).notNull(),
   // Flag to indicate if this is a system role
-  isSystemRole: integer().default(1).notNull(),
-  token: text({ length: 255 }).notNull().unique(),
-  invitedBy: text().notNull().references(() => userTable.id),
-  expiresAt: integer({ mode: "timestamp" }).notNull(),
-  acceptedAt: integer({ mode: "timestamp" }),
-  acceptedBy: text().references(() => userTable.id),
-}, (table) => ([
+  isSystemRole: boolean("is_system_role").default(true).notNull(),
+  token: varchar("token", { length: 255 }).notNull().unique(),
+  invitedBy: varchar("invited_by", { length: 255 }).notNull().references(() => userTable.id),
+  expiresAt: timestamp("expires_at").notNull(),
+  acceptedAt: timestamp("accepted_at"),
+  acceptedBy: varchar("accepted_by", { length: 255 }).references(() => userTable.id),
+}, (table) => [
   index('team_invitation_team_id_idx').on(table.teamId),
   index('team_invitation_email_idx').on(table.email),
   index('team_invitation_token_idx').on(table.token),
-]));
+]);
 
 export const teamRelations = relations(teamTable, ({ many }) => ({
   memberships: many(teamMembershipTable),
