@@ -39,9 +39,9 @@
      * https://developers.cloudflare.com/workers/wrangler/configuration/#environment-variables
      */
     "vars": {
-        "EMAIL_FROM": "no-reply@notifications.agenticdev.agency",
-        "EMAIL_FROM_NAME": "AgenticDev.agency",
-        "EMAIL_REPLY_TO": "support@agenticdev.agency"
+        "EMAIL_FROM": "no-reply@websyte.ai",
+        "EMAIL_FROM_NAME": "websyte.ai",
+        "EMAIL_REPLY_TO": "support@websyte.ai"
     },
     /**
      * Note: Use secrets to store sensitive data.
@@ -59,21 +59,21 @@
       }
     ],
 
-    "durable_objects": {
-      "bindings": [
-        {
-          "name": "NEXT_CACHE_DO_QUEUE",
-          "class_name": "DOQueueHandler",
-        }
-      ]
-    },
+    // "durable_objects": {
+    //   "bindings": [
+    //     {
+    //       "name": "NEXT_CACHE_DO_QUEUE",
+    //       "class_name": "DOQueueHandler",
+    //     }
+    //   ]
+    // },
 
-    "migrations": [
-      {
-        "tag": "v1",
-        "new_sqlite_classes": ["DOQueueHandler"],
-      },
-    ],
+    // "migrations": [
+    //   {
+    //     "tag": "v1",
+    //     "new_sqlite_classes": ["DOQueueHandler"],
+    //   },
+    // ],
 
     "kv_namespaces": [
         {
